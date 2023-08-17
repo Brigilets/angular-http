@@ -40,4 +40,12 @@ export class PostService {
         })
       );
   }
+
+  deleteAllPosts() {
+   return this.http
+      .delete(
+        'https://ng-http-a25f7-default-rtdb.europe-west1.firebasedatabase.app/posts.json'
+      )
+     
+  }
 }

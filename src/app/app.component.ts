@@ -12,6 +12,7 @@ import { PostService } from './posts.service';
 export class AppComponent implements OnInit {
   loadedPosts: Post[] = [];
   isFetching: boolean = false;
+  status: string = '';
 
   constructor(private http: HttpClient, private postsService: PostService) {}
 
@@ -37,5 +38,8 @@ export class AppComponent implements OnInit {
 
   onClearPosts() {
     // Send Http request
+    this.postsService.deleteAllPosts().subscribe(() => {
+      this.loadedPosts = [];
+    });
   }
 }
