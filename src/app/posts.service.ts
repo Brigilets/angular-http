@@ -1,7 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Post } from './post.model';
-import { Subject, map } from 'rxjs';
+import { Subject, catchError, map, throwError } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class PostService {
@@ -15,7 +15,8 @@ export class PostService {
     this.http
       .post<{ name: string }>(
         'https://ng-http-a25f7-default-rtdb.europe-west1.firebasedatabase.app/posts.json',
-        postData
+        postData,
+        {}
       )
       .subscribe(
         (responseData) => {
@@ -29,9 +30,21 @@ export class PostService {
   }
 
   fetchPosts() {
+    let searchParams = new HttpParams();
+
+    searchParams = searchParams.append('print', 'pretty');
+    searchParams = searchParams.append('Custom', 'Key');
+
     return this.http
       .get<{ [key: string]: Post }>(
-        'https://ng-http-a25f7-default-rtdb.europe-west1.firebasedatabase.app/posts.json'
+        'https://ng-http-a25f7-default-rtdb.europe-west1.firebasedatabase.app/posts.json',
+        {
+          headers: new HttpHeaders({
+            'Custom-header': 'testing headers',
+          }),
+          params: searchParams,
+          // params: new HttpParams().set('print', 'pretty'),
+        }
       )
       .pipe(
         map((responseData) => {
@@ -45,6 +58,9 @@ export class PostService {
             }
           }
           return postsArray;
+        }),
+        catchError((errorRes) => {
+          return throwError(errorRes.message);
         })
       );
   }
