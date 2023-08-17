@@ -1,10 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Post } from './post.model';
-import { map } from 'rxjs';
+import { Subject, map } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class PostService {
+  error = new Subject<string>();
+
   constructor(private http: HttpClient) {}
 
   createAndStorePost(title: string, content: string) {
@@ -15,9 +17,15 @@ export class PostService {
         'https://ng-http-a25f7-default-rtdb.europe-west1.firebasedatabase.app/posts.json',
         postData
       )
-      .subscribe((responseData) => {
-        console.log(responseData);
-      });
+      .subscribe(
+        (responseData) => {
+          console.log(responseData);
+        },
+        (error) => {
+          this.error.next(error.message);
+          console.log(error);
+        }
+      );
   }
 
   fetchPosts() {
@@ -42,10 +50,8 @@ export class PostService {
   }
 
   deleteAllPosts() {
-   return this.http
-      .delete(
-        'https://ng-http-a25f7-default-rtdb.europe-west1.firebasedatabase.app/posts.json'
-      )
-     
+    return this.http.delete(
+      'https://ng-http-a25f7-default-rtdb.europe-west1.firebasedatabase.app/posts.json'
+    );
   }
 }
