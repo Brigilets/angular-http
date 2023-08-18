@@ -1,7 +1,12 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpEventType,
+  HttpHeaders,
+  HttpParams,
+} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Post } from './post.model';
-import { Subject, catchError, map, throwError } from 'rxjs';
+import { Subject, catchError, map, throwError, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class PostService {
@@ -16,11 +21,11 @@ export class PostService {
       .post<{ name: string }>(
         'https://ng-http-a25f7-default-rtdb.europe-west1.firebasedatabase.app/posts.json',
         postData,
-        {}
+        { observe: 'response' }
       )
       .subscribe(
         (responseData) => {
-          console.log(responseData);
+          console.log(responseData.body);
         },
         (error) => {
           this.error.next(error.message);
@@ -60,14 +65,25 @@ export class PostService {
           return postsArray;
         }),
         catchError((errorRes) => {
-          return throwError(errorRes.message);
+          return throwError(errorRes);
         })
       );
   }
 
   deleteAllPosts() {
-    return this.http.delete(
-      'https://ng-http-a25f7-default-rtdb.europe-west1.firebasedatabase.app/posts.json'
-    );
+    return this.http
+      .delete(
+        'https://ng-http-a25f7-default-rtdb.europe-west1.firebasedatabase.app/posts.json',
+        { observe: 'events', responseType: 'text' }
+      )
+      .pipe(
+        tap((event) => {
+          console.log(event);
+
+          if (event.type === HttpEventType.Response) {
+            console.log(event.body);
+          }
+        })
+      );
   }
 }

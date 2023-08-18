@@ -42,7 +42,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.loadedPosts = posts;
       },
       (err) => {
-        this.error = err;
+        this.error = err.message;
         console.log('err', err);
       }
     );
