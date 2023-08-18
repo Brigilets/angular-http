@@ -1,8 +1,10 @@
 import {
+  HttpEventType,
   HttpHandler,
   HttpInterceptor,
   HttpRequest,
 } from '@angular/common/http';
+import { tap } from 'rxjs';
 
 export class AuthInterceptorService implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler) {
@@ -14,6 +16,15 @@ export class AuthInterceptorService implements HttpInterceptor {
     });
     // allows the request to continue the jurney & must be returned
     // return next.handle(req);
-    return next.handle(modifiedRequest);
+    return next.handle(modifiedRequest).pipe(
+      tap((event) => {
+        // must always use event inside interceptor tap()
+        console.log('all events from iterceptor', event);
+        if (event.type === HttpEventType.Response) {
+          console.log('Response arrived, body data: ');
+          console.log(event.body);
+        }
+      })
+    );
   }
 }
